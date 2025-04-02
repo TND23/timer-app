@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Pomodoro</h1>
+        <div class="pomodoro-instances">
+            <h3>Saved Timers</h3>
+            <div id="saved-instances-list">
+                <!-- Saved instances will be displayed here -->
+                <p id="no-instances-message">No saved timers yet</p>
+            </div>
+            <div class="save-instance-form">
+                <input type="text" id="instance-name" placeholder="Timer name">
+                <button id="save-instance">Save Current Timer</button>
+            </div>
+        </div>
+        <div class="work-timer-setup">
+            <div class="timer-inputs">
+                <div class="timer-section">
+                    <h3>Work Duration</h3>
+                    <div class="input-group">
+                        <label for="work-minutes">Minutes:</label>
+                        <input type="number" id="work-minutes" min="0" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="work-seconds">Seconds:</label>
+                        <input type="number" id="work-seconds" min="0" max="59" value="0">
+                    </div>
+                </div>
+                <div class="timer-section">
+                    <h3>Break Duration</h3>
+                    <div class="input-group">
+                        <label for="break-minutes">Minutes:</label>
+                        <input type="number" id="break-minutes" min="0" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="break-seconds">Seconds:</label>
+                        <input type="number" id="break-seconds" min="0" max="59" value="0">
+                    </div>
+                </div>
+            </div>
+            <button id="start-timer">Start Work Timer</button>
+        </div>
+        <div class="work-timer-display">
+            <div id="time-remaining">00:00</div>
+            <div id="timer-status"></div>
+        </div>
+        <div class="work-timer-complete hidden" id="work-timer-complete">
+            <p>Work timer complete!</p>
+            <div class="feedback-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="work-feedback-toggle">
+                    <span>Include feedback</span>
+                </label>
+            </div>
+            <div class="feedback-form collapsed" id="work-feedback-form">
+                <h3>Work Session Feedback</h3>
+                <div class="feedback-item">
+                    <label for="work-time-rating">How did the time duration feel? (1-10)</label>
+                    <div class="rating-container">
+                        <input type="range" id="work-time-rating" min="1" max="10" value="5">
+                        <span id="work-rating-value">5</span>
+                    </div>
+                </div>
+                <div class="feedback-item">
+                    <label>Did you enter a flow state?</label>
+                    <div class="flow-options">
+                        <label class="radio-label">
+                            <input type="radio" name="flow-state" value="yes"> Yes
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="flow-state" value="no"> No
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button id="work-done">Work done!</button>
+        </div>
+        
+        <div class="break-timer-complete hidden" id="break-timer-complete">
+            <p>Break timer complete!</p>
+            <div class="feedback-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="break-feedback-toggle">
+                    <span>Include feedback</span>
+                </label>
+            </div>
+            <div class="feedback-form collapsed" id="break-feedback-form">
+                <h3>Break Session Feedback</h3>
+                <div class="feedback-item">
+                    <label for="break-time-rating">How refreshing was the break? (1-10)</label>
+                    <div class="rating-container">
+                        <input type="range" id="break-time-rating" min="1" max="10" value="5">
+                        <span id="break-rating-value">5</span>
+                    </div>
+                </div>
+            </div>
+            <button id="break-done">Break done!</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
