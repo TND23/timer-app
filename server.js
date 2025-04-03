@@ -288,6 +288,58 @@ app.get('/api/schedules/:id', (req, res) => {
     }
 });
 
+// API endpoint to update a specific work schedule
+app.put('/api/schedules/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const { name, instances } = req.body;
+        const filePath = path.join(schedulesDir, `${id}.json`);
+        
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: 'Schedule not found' });
+        }
+        
+        if (!name || !instances || !Array.isArray(instances) || instances.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing required fields: name and instances (array) are required' 
+            });
+        }
+        
+        // Create the updated schedule data
+        const scheduleData = {
+            name,
+            instances,
+            updatedAt: new Date().toISOString()
+        };
+        
+        // Read existing data to preserve creation date
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const existingData = JSON.parse(fileContent);
+        
+        // Preserve createdAt date
+        if (existingData.createdAt) {
+            scheduleData.createdAt = existingData.createdAt;
+        }
+        
+        // Write to file
+        fs.writeFileSync(filePath, JSON.stringify(scheduleData, null, 2));
+        
+        // Add id to response
+        scheduleData.id = id;
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Work schedule updated successfully',
+            schedule: scheduleData
+        });
+    } catch (error) {
+        console.error('Error updating work schedule:', error);
+        res.status(500).json({ success: false, message: 'Failed to update work schedule' });
+    }
+});
+
 // API endpoint to delete a work schedule
 app.delete('/api/schedules/:id', (req, res) => {
     try {

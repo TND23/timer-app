@@ -5,6 +5,7 @@
 import timerModule from './js/timer.js';
 import serializationModule from './js/serialization.js';
 import scheduleModule from './js/schedule.js';
+import alarmModule from './js/alarm.js';
 
 // DOM elements for navigation
 const navLinks = document.querySelectorAll('.nav-link');
@@ -74,6 +75,9 @@ const noSchedulesMessage = document.getElementById('no-schedules-message');
 
 // Initialize modules
 function initializeModules() {
+    // Initialize audio module
+    alarmModule.initAudioModule();
+    
     // Initialize timer module
     timerModule.initTimerModule(timerElements);
     
@@ -85,6 +89,10 @@ function initializeModules() {
         timerModule,
         serializationModule
     });
+    
+    // Make modules available globally for cross-module communication
+    window.alarmModule = alarmModule;
+    window.serializationModule = serializationModule;
 }
 
 // Set up navigation
@@ -265,6 +273,7 @@ function loadSchedules() {
                     const scheduleElement = scheduleModule.createScheduleElement(
                         schedule,
                         scheduleModule.runSchedule,
+                        editSchedule,
                         deleteSchedule
                     );
                     savedSchedulesList.appendChild(scheduleElement);
@@ -274,6 +283,27 @@ function loadSchedules() {
                 noSchedulesMessage.style.display = 'block';
             }
         });
+}
+
+// Edit a schedule
+function editSchedule(schedule) {
+    // Switch to schedules section
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.app-section');
+    
+    // Remove active class from all links and sections
+    navLinks.forEach(link => link.classList.remove('active'));
+    sections.forEach(section => section.classList.remove('active'));
+    
+    // Add active class to schedules link and section
+    document.querySelector('.nav-link[data-section="schedules"]').classList.add('active');
+    document.getElementById('schedules-section').classList.add('active');
+    
+    // Edit the schedule
+    scheduleModule.editSchedule(schedule);
+    
+    // Reload instances to show "Add to Schedule" button
+    loadInstances();
 }
 
 // Delete a schedule

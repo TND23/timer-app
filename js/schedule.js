@@ -94,6 +94,75 @@ export function createSchedule(name) {
     scheduleBuilder.classList.remove('hidden');
 }
 
+// Edit an existing schedule
+export function editSchedule(schedule) {
+    // Set current schedule
+    currentSchedule = schedule;
+    
+    // Set current schedule name
+    currentScheduleName.textContent = schedule.name;
+    
+    // Clear current schedule instances list in UI
+    scheduleInstancesList.innerHTML = '';
+    
+    // Copy instances to current schedule instances
+    currentScheduleInstances = [...schedule.instances];
+    
+    // Add each instance to the UI
+    if (currentScheduleInstances.length > 0) {
+        noScheduleInstancesMessage.style.display = 'none';
+        currentScheduleInstances.forEach(instance => {
+            addInstanceToScheduleUI(instance);
+        });
+    } else {
+        noScheduleInstancesMessage.style.display = 'block';
+    }
+    
+    // Show schedule builder
+    scheduleBuilder.classList.remove('hidden');
+}
+
+// Add an instance to the schedule UI (without adding to currentScheduleInstances)
+function addInstanceToScheduleUI(instance) {
+    // Create schedule instance element
+    const scheduleInstanceElement = document.createElement('div');
+    scheduleInstanceElement.className = 'schedule-instance-item';
+    
+    const workTime = `${instance.workTimer.minutes.toString().padStart(2, '0')}:${instance.workTimer.seconds.toString().padStart(2, '0')}`;
+    const breakTime = `${instance.breakTimer.minutes.toString().padStart(2, '0')}:${instance.breakTimer.seconds.toString().padStart(2, '0')}`;
+    
+    scheduleInstanceElement.innerHTML = `
+        <div class="instance-info">
+            <div class="instance-name">${instance.name}</div>
+            <div class="instance-times">Work: ${workTime} / Break: ${breakTime}</div>
+        </div>
+        <div class="instance-actions">
+            <button class="remove-instance">Remove</button>
+        </div>
+    `;
+    
+    // Add event listener for remove button
+    const removeButton = scheduleInstanceElement.querySelector('.remove-instance');
+    removeButton.addEventListener('click', () => {
+        // Remove instance from current schedule instances
+        const index = currentScheduleInstances.findIndex(i => i.id === instance.id);
+        if (index !== -1) {
+            currentScheduleInstances.splice(index, 1);
+        }
+        
+        // Remove element from DOM
+        scheduleInstancesList.removeChild(scheduleInstanceElement);
+        
+        // Show "no instances" message if no instances left
+        if (currentScheduleInstances.length === 0) {
+            noScheduleInstancesMessage.style.display = 'block';
+        }
+    });
+    
+    // Add element to DOM
+    scheduleInstancesList.appendChild(scheduleInstanceElement);
+}
+
 // Add an instance to the current schedule
 export function addInstanceToSchedule(instance) {
     // Add instance to current schedule instances
@@ -154,14 +223,20 @@ function saveSchedule() {
         instances: currentScheduleInstances
     };
     
+    // If we're editing an existing schedule, include its ID
+    if (currentSchedule && currentSchedule.id) {
+        scheduleData.id = currentSchedule.id;
+    }
+    
     // Send data to server
     serializationModule.saveSchedule(scheduleData)
         .then(() => {
             // Hide schedule builder
             scheduleBuilder.classList.add('hidden');
             
-            // Clear current schedule instances
+            // Clear current schedule instances and reset currentSchedule
             currentScheduleInstances = [];
+            currentSchedule = null;
             
             // Trigger events to refresh UI
             const event = new CustomEvent('schedules-updated');
@@ -172,13 +247,14 @@ function saveSchedule() {
         });
 }
 
-// Cancel schedule creation
+// Cancel schedule creation or editing
 function cancelSchedule() {
     // Hide schedule builder
     scheduleBuilder.classList.add('hidden');
     
-    // Clear current schedule instances
+    // Clear current schedule instances and reset currentSchedule
     currentScheduleInstances = [];
+    currentSchedule = null;
     
     // Trigger events to refresh UI
     const event = new CustomEvent('schedules-updated');
@@ -186,7 +262,7 @@ function cancelSchedule() {
 }
 
 // Create an HTML element for a schedule
-export function createScheduleElement(schedule, onRunSchedule, onDeleteSchedule) {
+export function createScheduleElement(schedule, onRunSchedule, onEditSchedule, onDeleteSchedule) {
     const scheduleElement = document.createElement('div');
     scheduleElement.className = 'schedule-item';
     
@@ -197,6 +273,7 @@ export function createScheduleElement(schedule, onRunSchedule, onDeleteSchedule)
         </div>
         <div class="instance-actions">
             <button class="run-schedule">Run</button>
+            <button class="edit-schedule">Edit</button>
             <button class="delete-schedule">Delete</button>
         </div>
     `;
@@ -204,6 +281,10 @@ export function createScheduleElement(schedule, onRunSchedule, onDeleteSchedule)
     // Add event listener for run button
     const runButton = scheduleElement.querySelector('.run-schedule');
     runButton.addEventListener('click', () => onRunSchedule(schedule));
+    
+    // Add event listener for edit button
+    const editButton = scheduleElement.querySelector('.edit-schedule');
+    editButton.addEventListener('click', () => onEditSchedule(schedule));
     
     // Add event listener for delete button
     const deleteButton = scheduleElement.querySelector('.delete-schedule');
@@ -323,6 +404,7 @@ export function isScheduleRunning() {
 export default {
     initScheduleModule,
     createSchedule,
+    editSchedule,
     addInstanceToSchedule,
     createScheduleElement,
     runSchedule,

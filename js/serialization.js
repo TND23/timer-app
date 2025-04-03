@@ -110,8 +110,13 @@ export function saveSchedule(scheduleData) {
     // Show saving status
     timerStatusElement.textContent = 'Saving schedule...';
     
-    return fetch('/api/save-schedule', {
-        method: 'POST',
+    // If the schedule has an id, it's an existing schedule being updated
+    const isUpdate = scheduleData.id !== undefined;
+    const endpoint = isUpdate ? `/api/schedules/${scheduleData.id}` : '/api/save-schedule';
+    const method = isUpdate ? 'PUT' : 'POST';
+    
+    return fetch(endpoint, {
+        method: method,
         headers: {
             'Content-Type': 'application/json'
         },
@@ -120,16 +125,16 @@ export function saveSchedule(scheduleData) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            timerStatusElement.textContent = 'Schedule saved successfully';
+            timerStatusElement.textContent = isUpdate ? 'Schedule updated successfully' : 'Schedule saved successfully';
             return data;
         } else {
-            timerStatusElement.textContent = 'Error saving schedule';
+            timerStatusElement.textContent = isUpdate ? 'Error updating schedule' : 'Error saving schedule';
             console.error('Error:', data.message);
             throw new Error(data.message);
         }
     })
     .catch(error => {
-        timerStatusElement.textContent = 'Error saving schedule';
+        timerStatusElement.textContent = isUpdate ? 'Error updating schedule' : 'Error saving schedule';
         console.error('Error:', error);
         throw error;
     });

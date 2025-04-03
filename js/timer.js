@@ -2,6 +2,8 @@
 // Handles all timer-related functionality
 
 // Timer variables
+import alarmModule from './alarm.js';
+
 let timerInterval;
 let startTime;
 let totalSeconds = 0;
@@ -224,9 +226,10 @@ function timerComplete() {
         
         // Show work completion section
         workTimerCompleteElement.classList.remove('hidden');
-        
+          
         // Play alert sound and show browser notification
-        alert('Work timer complete!');
+        //alert('Work timer complete!');
+        alarmModule.play("slot");
     } else {
         // Break timer complete
         timerStatusElement.textContent = 'Break timer complete!';
@@ -246,7 +249,9 @@ function timerComplete() {
         }
         
         // Play alert sound and show browser notification
-        alert('Break timer complete!');
+
+        alarmModule.play("rooster");
+
     }
 }
 
