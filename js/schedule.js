@@ -6,6 +6,8 @@ let scheduleBuilder;
 let currentScheduleName;
 let scheduleInstancesList;
 let noScheduleInstancesMessage;
+let availableInstancesList;
+let noAvailableInstancesMessage;
 let saveScheduleButton;
 let cancelScheduleButton;
 let scheduleRunner;
@@ -37,6 +39,8 @@ export function initScheduleModule(elements, modules) {
     currentScheduleName = elements.currentScheduleName;
     scheduleInstancesList = elements.scheduleInstancesList;
     noScheduleInstancesMessage = elements.noScheduleInstancesMessage;
+    availableInstancesList = elements.availableInstancesList;
+    noAvailableInstancesMessage = elements.noAvailableInstancesMessage;
     saveScheduleButton = elements.saveScheduleButton;
     cancelScheduleButton = elements.cancelScheduleButton;
     scheduleRunner = elements.scheduleRunner;
@@ -92,6 +96,58 @@ export function createSchedule(name) {
     
     // Show schedule builder
     scheduleBuilder.classList.remove('hidden');
+    
+    // Load available timers
+    loadAvailableTimers();
+}
+
+// Load available timers for the schedule builder
+function loadAvailableTimers() {
+    // Clear available instances list
+    availableInstancesList.innerHTML = '';
+    
+    // Load instances from server
+    serializationModule.loadInstances()
+        .then(instances => {
+            if (instances && instances.length > 0) {
+                // Hide the "no available instances" message
+                noAvailableInstancesMessage.style.display = 'none';
+                
+                // Add each instance to the available instances list
+                instances.forEach(instance => {
+                    const instanceElement = createAvailableInstanceElement(instance);
+                    availableInstancesList.appendChild(instanceElement);
+                });
+            } else {
+                // Show the "no available instances" message
+                noAvailableInstancesMessage.style.display = 'block';
+            }
+        });
+}
+
+// Create an HTML element for an available instance
+function createAvailableInstanceElement(instance) {
+    const instanceElement = document.createElement('div');
+    instanceElement.className = 'instance-item';
+    
+    const workTime = `${instance.workTimer.minutes.toString().padStart(2, '0')}:${instance.workTimer.seconds.toString().padStart(2, '0')}`;
+    const breakTime = `${instance.breakTimer.minutes.toString().padStart(2, '0')}:${instance.breakTimer.seconds.toString().padStart(2, '0')}`;
+    
+    instanceElement.innerHTML = `
+        <div class="instance-info">
+            <div class="instance-name">${instance.name}</div>
+            <div class="instance-times">Work: ${workTime} / Break: ${breakTime}</div>
+        </div>
+        <div class="instance-actions">
+            <button class="add-to-schedule">Add</button>
+        </div>
+    `;
+    
+    // Add event listener for add button
+    const addButton = instanceElement.querySelector('.add-to-schedule');
+    addButton.addEventListener('click', () => addInstanceToSchedule(instance));
+    
+    return instanceElement;
 }
 
 // Edit an existing schedule
@@ -120,6 +176,9 @@ export function editSchedule(schedule) {
     
     // Show schedule builder
     scheduleBuilder.classList.remove('hidden');
+    
+    // Load available timers
+    loadAvailableTimers();
 }
 
 // Add an instance to the schedule UI (without adding to currentScheduleInstances)

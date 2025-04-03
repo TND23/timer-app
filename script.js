@@ -46,6 +46,8 @@ const scheduleElements = {
     currentScheduleName: document.getElementById('current-schedule-name'),
     scheduleInstancesList: document.getElementById('schedule-instances-list'),
     noScheduleInstancesMessage: document.getElementById('no-schedule-instances-message'),
+    availableInstancesList: document.getElementById('available-instances-list'),
+    noAvailableInstancesMessage: document.getElementById('no-available-instances-message'),
     saveScheduleButton: document.getElementById('save-schedule'),
     cancelScheduleButton: document.getElementById('cancel-schedule'),
     scheduleRunner: document.getElementById('schedule-runner'),
@@ -166,7 +168,6 @@ function createInstanceElement(instance) {
         <div class="instance-actions">
             <button class="load-instance">Load</button>
             <button class="delete-instance">Delete</button>
-            ${document.getElementById('schedule-builder').classList.contains('hidden') ? '' : '<button class="add-to-schedule">Add to Schedule</button>'}
         </div>
     `;
     
@@ -177,12 +178,6 @@ function createInstanceElement(instance) {
     // Add event listener for delete button
     const deleteButton = instanceElement.querySelector('.delete-instance');
     deleteButton.addEventListener('click', () => deleteInstance(instance.id));
-    
-    // Add event listener for add to schedule button if it exists
-    const addToScheduleButton = instanceElement.querySelector('.add-to-schedule');
-    if (addToScheduleButton) {
-        addToScheduleButton.addEventListener('click', () => scheduleModule.addInstanceToSchedule(instance));
-    }
     
     return instanceElement;
 }
@@ -301,9 +296,6 @@ function editSchedule(schedule) {
     
     // Edit the schedule
     scheduleModule.editSchedule(schedule);
-    
-    // Reload instances to show "Add to Schedule" button
-    loadInstances();
 }
 
 // Delete a schedule
@@ -327,9 +319,6 @@ function createSchedule() {
     
     scheduleModule.createSchedule(name);
     scheduleNameInput.value = '';
-    
-    // Reload instances to show "Add to Schedule" button
-    loadInstances();
 }
 
 // Set up event listeners

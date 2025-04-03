@@ -6,6 +6,8 @@ function resetAudio(){
 }
 
 export function initAudioModule(elements){
+    roosterAlarm.volume = .25;
+    slotAlarm.volume = .25;
     roosterAlarm.addEventListener("ended", resetAudio);
     slotAlarm.addEventListener("ended", resetAudio);
 }

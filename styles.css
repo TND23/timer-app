@@ -342,6 +342,12 @@ button:hover {
     font-size: 14px;
 }
 
+.add-to-schedule {
+    background-color: #28a745;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
 .save-instance-form {
     display: flex;
     gap: 10px;
@@ -449,7 +455,28 @@ button:hover {
 }
 
 /* Schedule Builder Styles */
-#schedule-instances-list {
+.schedule-builder-container {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.schedule-builder-column {
+    flex: 1;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 15px;
+    border: 1px solid #ddd;
+}
+
+.schedule-builder-column h4 {
+    margin-bottom: 15px;
+    color: #444;
+    font-size: 16px;
+    text-align: center;
+}
+
+#schedule-instances-list, #available-instances-list {
     margin: 15px 0;
     max-height: 300px;
     overflow-y: auto;

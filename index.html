@@ -177,10 +177,25 @@
                 <!-- Schedule Builder (initially hidden) -->
                 <div class="schedule-builder hidden" id="schedule-builder">
                     <h3>Build Work Schedule: <span id="current-schedule-name"></span></h3>
-                    <div id="schedule-instances-list">
-                        <!-- Selected instances will be displayed here -->
-                        <p id="no-schedule-instances-message">No timers added to schedule yet</p>
+                    
+                    <div class="schedule-builder-container">
+                        <div class="schedule-builder-column">
+                            <h4>Current Schedule</h4>
+                            <div id="schedule-instances-list">
+                                <!-- Selected instances will be displayed here -->
+                                <p id="no-schedule-instances-message">No timers added to schedule yet</p>
+                            </div>
+                        </div>
+                        
+                        <div class="schedule-builder-column">
+                            <h4>Available Timers</h4>
+                            <div id="available-instances-list">
+                                <!-- Available instances will be displayed here -->
+                                <p id="no-available-instances-message">No saved timers available</p>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="schedule-actions">
                         <button id="save-schedule">Save Schedule</button>
                         <button id="cancel-schedule">Cancel</button>
