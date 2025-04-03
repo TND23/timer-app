@@ -17,15 +17,62 @@ body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 30px;
+    padding: 20px;
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
     text-align: center;
 }
 
-h1 {
+/* Header and Navigation */
+header {
     margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+h1 {
+    margin-bottom: 15px;
     color: #333;
+}
+
+.main-nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.main-nav li {
+    margin: 0 10px;
+}
+
+.nav-link {
+    display: inline-block;
+    padding: 8px 15px;
+    color: #555;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.nav-link.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* App Sections */
+.app-section {
+    display: none;
+}
+
+.app-section.active {
+    display: block;
 }
 
 .work-timer-setup {
@@ -231,8 +278,8 @@ button:hover {
     display: none;
 }
 
-/* Pomodoro Instances Styles */
-.pomodoro-instances {
+/* Work Schedules Styles */
+.work-schedules, .schedule-builder, .schedule-runner, .schedule-feedback, .pomodoro-instances {
     margin-bottom: 20px;
     padding: 15px;
     background-color: #f8f9fa;
@@ -240,7 +287,7 @@ button:hover {
     border: 1px solid #ddd;
 }
 
-.pomodoro-instances h3 {
+.work-schedules h3, .schedule-builder h3, .schedule-runner h3, .schedule-feedback h3, .pomodoro-instances h3 {
     margin-bottom: 15px;
     color: #444;
     font-size: 18px;
@@ -314,9 +361,168 @@ button:hover {
     font-size: 14px;
 }
 
-#no-instances-message {
+#no-instances-message, #no-schedules-message, #no-schedule-instances-message {
     color: #666;
     font-style: italic;
     text-align: center;
     padding: 10px;
+}
+
+/* Work Schedule Styles */
+#saved-schedules-list {
+    margin-bottom: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.schedule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.schedule-info {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.schedule-name {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.schedule-details {
+    font-size: 14px;
+    color: #666;
+}
+
+.schedule-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.run-schedule {
+    background-color: #007bff;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.delete-schedule {
+    background-color: #dc3545;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.save-schedule-form {
+    display: flex;
+    gap: 10px;
+}
+
+#schedule-name {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#create-schedule {
+    background-color: #28a745;
+    padding: 8px 15px;
+    font-size: 14px;
+}
+
+#save-schedule {
+    background-color: #28a745;
+}
+
+#cancel-schedule {
+    background-color: #6c757d;
+}
+
+/* Schedule Builder Styles */
+#schedule-instances-list {
+    margin: 15px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.schedule-instance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.remove-instance {
+    background-color: #dc3545;
+    padding: 3px 8px;
+    font-size: 12px;
+}
+
+.move-up, .move-down {
+    background-color: #6c757d;
+    padding: 3px 8px;
+    font-size: 12px;
+}
+
+/* Schedule Runner Styles */
+.schedule-progress {
+    margin: 15px 0;
+    padding: 15px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+#current-timer-info {
+    margin-bottom: 10px;
+}
+
+.timer-name, .timer-count {
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+/* Schedule Feedback Styles */
+#schedule-feedback-text {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+#submit-schedule-feedback {
+    background-color: #007bff;
+    margin-top: 10px;
+}
+
+/* Break Actions Styles */
+.break-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#next-timer {
+    background-color: #17a2b8;
+}
+
+#next-timer:hover {
+    background-color: #138496;
 }

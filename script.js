@@ -1,469 +1,137 @@
-// DOM elements
-const workMinutesInput = document.getElementById('work-minutes');
-const workSecondsInput = document.getElementById('work-seconds');
-const breakMinutesInput = document.getElementById('break-minutes');
-const breakSecondsInput = document.getElementById('break-seconds');
-const startTimerButton = document.getElementById('start-timer');
-const timeRemainingElement = document.getElementById('time-remaining');
-const timerStatusElement = document.getElementById('timer-status');
-const workTimerCompleteElement = document.getElementById('work-timer-complete');
-const breakTimerCompleteElement = document.getElementById('break-timer-complete');
-const workDoneButton = document.getElementById('work-done');
-const breakDoneButton = document.getElementById('break-done');
-const workTimeRatingInput = document.getElementById('work-time-rating');
-const workRatingValueDisplay = document.getElementById('work-rating-value');
-const breakTimeRatingInput = document.getElementById('break-time-rating');
-const breakRatingValueDisplay = document.getElementById('break-rating-value');
-const workFeedbackToggle = document.getElementById('work-feedback-toggle');
-const breakFeedbackToggle = document.getElementById('break-feedback-toggle');
-const workFeedbackForm = document.getElementById('work-feedback-form');
-const breakFeedbackForm = document.getElementById('break-feedback-form');
+// Main Application Script
+// Imports modules and initializes the application
+
+// Import modules
+import timerModule from './js/timer.js';
+import serializationModule from './js/serialization.js';
+import scheduleModule from './js/schedule.js';
+
+// DOM elements for navigation
+const navLinks = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.app-section');
+
+// DOM elements for timer module
+const timerElements = {
+    workMinutesInput: document.getElementById('work-minutes'),
+    workSecondsInput: document.getElementById('work-seconds'),
+    breakMinutesInput: document.getElementById('break-minutes'),
+    breakSecondsInput: document.getElementById('break-seconds'),
+    startTimerButton: document.getElementById('start-timer'),
+    timeRemainingElement: document.getElementById('time-remaining'),
+    timerStatusElement: document.getElementById('timer-status'),
+    workTimerCompleteElement: document.getElementById('work-timer-complete'),
+    breakTimerCompleteElement: document.getElementById('break-timer-complete'),
+    workDoneButton: document.getElementById('work-done'),
+    breakDoneButton: document.getElementById('break-done'),
+    nextTimerButton: document.getElementById('next-timer'),
+    workTimeRatingInput: document.getElementById('work-time-rating'),
+    workRatingValueDisplay: document.getElementById('work-rating-value'),
+    breakTimeRatingInput: document.getElementById('break-time-rating'),
+    breakRatingValueDisplay: document.getElementById('break-rating-value'),
+    workFeedbackToggle: document.getElementById('work-feedback-toggle'),
+    breakFeedbackToggle: document.getElementById('break-feedback-toggle'),
+    workFeedbackForm: document.getElementById('work-feedback-form'),
+    breakFeedbackForm: document.getElementById('break-feedback-form')
+};
+
+// DOM elements for serialization module
+const serializationElements = {
+    timerStatusElement: document.getElementById('timer-status')
+};
+
+// DOM elements for schedule module
+const scheduleElements = {
+    scheduleBuilder: document.getElementById('schedule-builder'),
+    currentScheduleName: document.getElementById('current-schedule-name'),
+    scheduleInstancesList: document.getElementById('schedule-instances-list'),
+    noScheduleInstancesMessage: document.getElementById('no-schedule-instances-message'),
+    saveScheduleButton: document.getElementById('save-schedule'),
+    cancelScheduleButton: document.getElementById('cancel-schedule'),
+    scheduleRunner: document.getElementById('schedule-runner'),
+    runningScheduleName: document.getElementById('running-schedule-name'),
+    currentTimerName: document.getElementById('current-timer-name'),
+    currentTimerIndex: document.getElementById('current-timer-index'),
+    totalTimers: document.getElementById('total-timers'),
+    scheduleFeedback: document.getElementById('schedule-feedback'),
+    scheduleFeedbackText: document.getElementById('schedule-feedback-text'),
+    scheduleRating: document.getElementById('schedule-rating'),
+    scheduleRatingValue: document.getElementById('schedule-rating-value'),
+    submitScheduleFeedbackButton: document.getElementById('submit-schedule-feedback'),
+    nextTimerButton: document.getElementById('next-timer')
+};
+
+// DOM elements for saved timers section
 const savedInstancesList = document.getElementById('saved-instances-list');
 const instanceNameInput = document.getElementById('instance-name');
 const saveInstanceButton = document.getElementById('save-instance');
 const noInstancesMessage = document.getElementById('no-instances-message');
 
-// Timer variables
-let timerInterval;
-let startTime;
-let totalSeconds = 0;
-let remainingSeconds = 0;
-let isWorkTimer = true;
-let breakTotalSeconds = 0;
-let includeFeedback = {
-    work: false,
-    break: false
-};
-let sessionData = {
-    work: {
-        startDateTime: '',
-        elapsedTime: '',
-        feedback: null
-    },
-    break: {
-        startDateTime: '',
-        elapsedTime: '',
-        feedback: null
-    }
-};
+// DOM elements for saved schedules section
+const savedSchedulesList = document.getElementById('saved-schedules-list');
+const scheduleNameInput = document.getElementById('schedule-name');
+const createScheduleButton = document.getElementById('create-schedule');
+const noSchedulesMessage = document.getElementById('no-schedules-message');
 
-// Format time as MM:SS
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
-
-// Start the work timer
-function startTimer() {
-    // Get input values for work timer
-    const workMinutes = parseInt(workMinutesInput.value) || 0;
-    const workSeconds = parseInt(workSecondsInput.value) || 0;
+// Initialize modules
+function initializeModules() {
+    // Initialize timer module
+    timerModule.initTimerModule(timerElements);
     
-    // Get input values for break timer
-    const breakMinutes = parseInt(breakMinutesInput.value) || 0;
-    const breakSeconds = parseInt(breakSecondsInput.value) || 0;
+    // Initialize serialization module
+    serializationModule.initSerializationModule(serializationElements);
     
-    // Validate input
-    if (workMinutes === 0 && workSeconds === 0) {
-        timerStatusElement.textContent = 'Please set a work time greater than 0';
-        return;
-    }
-    
-    if (breakMinutes === 0 && breakSeconds === 0) {
-        timerStatusElement.textContent = 'Please set a break time greater than 0';
-        return;
-    }
-    
-    // Calculate total seconds for work and break
-    totalSeconds = (workMinutes * 60) + workSeconds;
-    breakTotalSeconds = (breakMinutes * 60) + breakSeconds;
-    remainingSeconds = totalSeconds;
-    
-    // Disable inputs and start button
-    disableInputs();
-    
-    // Update status
-    timerStatusElement.textContent = 'Work timer running...';
-    
-// Reset session data and record start time for work
-isWorkTimer = true;
-startTime = new Date();
-includeFeedback = {
-    work: false,
-    break: false
-};
-sessionData = {
-    work: {
-        startDateTime: startTime.toISOString(),
-        elapsedTime: '',
-        feedback: null
-    },
-    break: {
-        startDateTime: '',
-        elapsedTime: '',
-        feedback: null
-    }
-};
-    
-    // Update timer display
-    timeRemainingElement.textContent = formatTime(remainingSeconds);
-    
-    // Start interval
-    timerInterval = setInterval(updateTimer, 1000);
-}
-
-// Update the timer
-function updateTimer() {
-    remainingSeconds--;
-    
-    // Update display
-    timeRemainingElement.textContent = formatTime(remainingSeconds);
-    
-    // Check if timer is complete
-    if (remainingSeconds <= 0) {
-        clearInterval(timerInterval);
-        timerComplete();
-    }
-}
-
-// Handle timer completion
-function timerComplete() {
-    if (isWorkTimer) {
-        // Work timer complete
-        timerStatusElement.textContent = 'Work timer complete!';
-        
-        // Show work completion section
-        workTimerCompleteElement.classList.remove('hidden');
-        
-        // Play alert sound and show browser notification
-        alert('Work timer complete!');
-    } else {
-        // Break timer complete
-        timerStatusElement.textContent = 'Break timer complete!';
-        
-        // Show break completion section
-        breakTimerCompleteElement.classList.remove('hidden');
-        
-        // Play alert sound and show browser notification
-        alert('Break timer complete!');
-    }
-}
-
-// Start the break timer
-function startBreakTimer() {
-    // Hide work completion section
-    workTimerCompleteElement.classList.add('hidden');
-    
-    // Set remaining seconds to break duration
-    remainingSeconds = breakTotalSeconds;
-    
-    // Update status
-    timerStatusElement.textContent = 'Break timer running...';
-    
-    // Record start time for break
-    isWorkTimer = false;
-    startTime = new Date();
-    sessionData.break.startDateTime = startTime.toISOString();
-    
-    // Update timer display
-    timeRemainingElement.textContent = formatTime(remainingSeconds);
-    
-    // Start interval
-    timerInterval = setInterval(updateTimer, 1000);
-}
-
-// Disable all inputs
-function disableInputs() {
-    workMinutesInput.disabled = true;
-    workSecondsInput.disabled = true;
-    breakMinutesInput.disabled = true;
-    breakSecondsInput.disabled = true;
-    startTimerButton.disabled = true;
-}
-
-// Enable all inputs
-function enableInputs() {
-    workMinutesInput.disabled = false;
-    workSecondsInput.disabled = false;
-    breakMinutesInput.disabled = false;
-    breakSecondsInput.disabled = false;
-    startTimerButton.disabled = false;
-}
-
-// Reset the timer
-function resetTimer() {
-    // Clear interval
-    clearInterval(timerInterval);
-    
-    // Enable inputs
-    enableInputs();
-    
-    // Reset display
-    timeRemainingElement.textContent = '00:00';
-    timerStatusElement.textContent = '';
-    
-    // Hide completion sections
-    workTimerCompleteElement.classList.add('hidden');
-    breakTimerCompleteElement.classList.add('hidden');
-    
-    // Reset feedback forms
-    resetFeedbackForms();
-}
-
-// Reset feedback forms
-function resetFeedbackForms() {
-    // Reset work feedback
-    workTimeRatingInput.value = 5;
-    workRatingValueDisplay.textContent = '5';
-    document.querySelectorAll('input[name="flow-state"]').forEach(radio => {
-        radio.checked = false;
-    });
-    
-    // Reset break feedback
-    breakTimeRatingInput.value = 5;
-    breakRatingValueDisplay.textContent = '5';
-    
-    // Reset feedback toggles
-    workFeedbackToggle.checked = false;
-    breakFeedbackToggle.checked = false;
-    
-    // Collapse feedback forms
-    workFeedbackForm.classList.add('collapsed');
-    breakFeedbackForm.classList.add('collapsed');
-    
-    // Reset feedback inclusion
-    includeFeedback.work = false;
-    includeFeedback.break = false;
-    
-    // Reset session data
-    sessionData.work.feedback = null;
-    sessionData.break.feedback = null;
-}
-
-// Handle work done button click
-function handleWorkDone() {
-    // Calculate elapsed time for work
-    const endTime = new Date();
-    const elapsedMilliseconds = endTime - new Date(sessionData.work.startDateTime);
-    
-    // Format elapsed time
-    const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
-    sessionData.work.elapsedTime = formatTime(elapsedSeconds);
-    
-    // Include feedback if toggle is checked
-    if (includeFeedback.work) {
-        sessionData.work.feedback = {
-            timeRating: parseInt(workTimeRatingInput.value),
-            flowState: getFlowState()
-        };
-    } else {
-        sessionData.work.feedback = null;
-    }
-    
-    // Start the break timer
-    startBreakTimer();
-}
-
-// Get the selected flow state
-function getFlowState() {
-    const flowStateRadios = document.querySelectorAll('input[name="flow-state"]');
-    for (const radio of flowStateRadios) {
-        if (radio.checked) {
-            return radio.value;
-        }
-    }
-    return null;
-}
-
-// Handle break done button click
-function handleBreakDone() {
-    // Calculate elapsed time for break
-    const endTime = new Date();
-    const elapsedMilliseconds = endTime - new Date(sessionData.break.startDateTime);
-    
-    // Format elapsed time
-    const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
-    sessionData.break.elapsedTime = formatTime(elapsedSeconds);
-    
-    // Include feedback if toggle is checked
-    if (includeFeedback.break) {
-        sessionData.break.feedback = {
-            refreshRating: parseInt(breakTimeRatingInput.value)
-        };
-    } else {
-        sessionData.break.feedback = null;
-    }
-    
-    // Save data to JSON file
-    saveSessionData();
-    
-    // Reset timer
-    resetTimer();
-}
-
-// Save session data to JSON file in the data folder
-function saveSessionData() {
-    // Show saving status
-    timerStatusElement.textContent = 'Saving session data...';
-    
-    // Send data to server
-    fetch('/api/save-timer', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(sessionData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            timerStatusElement.textContent = `Session data saved for week: ${data.weekId}`;
-        } else {
-            timerStatusElement.textContent = 'Error saving session data';
-            console.error('Error:', data.message);
-        }
-    })
-    .catch(error => {
-        timerStatusElement.textContent = 'Error saving session data';
-        console.error('Error:', error);
+    // Initialize schedule module with references to other modules
+    scheduleModule.initScheduleModule(scheduleElements, {
+        timerModule,
+        serializationModule
     });
 }
 
-// Toggle work feedback form
-workFeedbackToggle.addEventListener('change', function() {
-    includeFeedback.work = this.checked;
-    if (this.checked) {
-        workFeedbackForm.classList.remove('collapsed');
-    } else {
-        workFeedbackForm.classList.add('collapsed');
-    }
-});
-
-// Toggle break feedback form
-breakFeedbackToggle.addEventListener('change', function() {
-    includeFeedback.break = this.checked;
-    if (this.checked) {
-        breakFeedbackForm.classList.remove('collapsed');
-    } else {
-        breakFeedbackForm.classList.add('collapsed');
-    }
-});
-
-// Update work rating display when slider changes
-workTimeRatingInput.addEventListener('input', function() {
-    workRatingValueDisplay.textContent = this.value;
-    // Auto-check the feedback toggle if user interacts with the rating
-    if (!workFeedbackToggle.checked) {
-        workFeedbackToggle.checked = true;
-        includeFeedback.work = true;
-        workFeedbackForm.classList.remove('collapsed');
-    }
-});
-
-// Update break rating display when slider changes
-breakTimeRatingInput.addEventListener('input', function() {
-    breakRatingValueDisplay.textContent = this.value;
-    // Auto-check the feedback toggle if user interacts with the rating
-    if (!breakFeedbackToggle.checked) {
-        breakFeedbackToggle.checked = true;
-        includeFeedback.break = true;
-        breakFeedbackForm.classList.remove('collapsed');
-    }
-});
-
-// Handle flow state selection
-document.querySelectorAll('input[name="flow-state"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        // Auto-check the feedback toggle if user interacts with flow state
-        if (!workFeedbackToggle.checked) {
-            workFeedbackToggle.checked = true;
-            includeFeedback.work = true;
-            workFeedbackForm.classList.remove('collapsed');
-        }
-    });
-});
-
-// Save current timer settings as a named instance
-function saveInstance() {
-    const name = instanceNameInput.value.trim();
-    
-    if (!name) {
-        timerStatusElement.textContent = 'Please enter a name for the timer';
-        return;
-    }
-    
-    // Get current timer values
-    const workMinutes = parseInt(workMinutesInput.value) || 0;
-    const workSeconds = parseInt(workSecondsInput.value) || 0;
-    const breakMinutes = parseInt(breakMinutesInput.value) || 0;
-    const breakSeconds = parseInt(breakSecondsInput.value) || 0;
-    
-    // Validate input
-    if (workMinutes === 0 && workSeconds === 0) {
-        timerStatusElement.textContent = 'Please set a work time greater than 0';
-        return;
-    }
-    
-    if (breakMinutes === 0 && breakSeconds === 0) {
-        timerStatusElement.textContent = 'Please set a break time greater than 0';
-        return;
-    }
-    
-    // Create instance data
-    const instanceData = {
-        name: name,
-        workTimer: {
-            minutes: workMinutes,
-            seconds: workSeconds
-        },
-        breakTimer: {
-            minutes: breakMinutes,
-            seconds: breakSeconds
-        }
-    };
-    
-    // Send data to server
-    timerStatusElement.textContent = 'Saving timer...';
-    
-    fetch('/api/save-instance', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(instanceData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            timerStatusElement.textContent = 'Timer saved successfully';
-            instanceNameInput.value = '';
-            loadInstances(); // Refresh the instances list
-        } else {
-            timerStatusElement.textContent = 'Error saving timer';
-            console.error('Error:', data.message);
-        }
-    })
-    .catch(error => {
-        timerStatusElement.textContent = 'Error saving timer';
-        console.error('Error:', error);
+// Set up navigation
+function setupNavigation() {
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get the section to show
+            const sectionId = this.getAttribute('data-section');
+            
+            // Remove active class from all links and sections
+            navLinks.forEach(link => link.classList.remove('active'));
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Add active class to clicked link
+            this.classList.add('active');
+            
+            // Show the selected section
+            if (sectionId === 'timer') {
+                document.getElementById('timer-section').classList.add('active');
+            } else if (sectionId === 'saved-timers') {
+                document.getElementById('saved-timers-section').classList.add('active');
+                // Refresh instances when navigating to this section
+                loadInstances();
+            } else if (sectionId === 'schedules') {
+                document.getElementById('schedules-section').classList.add('active');
+                // Refresh schedules when navigating to this section
+                loadSchedules();
+            }
+        });
     });
 }
 
 // Load all saved instances
 function loadInstances() {
-    fetch('/api/instances')
-        .then(response => response.json())
-        .then(data => {
+    serializationModule.loadInstances()
+        .then(instances => {
             // Clear the current list
             savedInstancesList.innerHTML = '';
             
-            if (data.instances && data.instances.length > 0) {
+            if (instances && instances.length > 0) {
                 // Hide the "no instances" message
                 noInstancesMessage.style.display = 'none';
                 
                 // Add each instance to the list
-                data.instances.forEach(instance => {
+                instances.forEach(instance => {
                     const instanceElement = createInstanceElement(instance);
                     savedInstancesList.appendChild(instanceElement);
                 });
@@ -471,10 +139,6 @@ function loadInstances() {
                 // Show the "no instances" message
                 noInstancesMessage.style.display = 'block';
             }
-        })
-        .catch(error => {
-            console.error('Error loading instances:', error);
-            timerStatusElement.textContent = 'Error loading saved timers';
         });
 }
 
@@ -494,6 +158,7 @@ function createInstanceElement(instance) {
         <div class="instance-actions">
             <button class="load-instance">Load</button>
             <button class="delete-instance">Delete</button>
+            ${document.getElementById('schedule-builder').classList.contains('hidden') ? '' : '<button class="add-to-schedule">Add to Schedule</button>'}
         </div>
     `;
     
@@ -505,46 +170,161 @@ function createInstanceElement(instance) {
     const deleteButton = instanceElement.querySelector('.delete-instance');
     deleteButton.addEventListener('click', () => deleteInstance(instance.id));
     
+    // Add event listener for add to schedule button if it exists
+    const addToScheduleButton = instanceElement.querySelector('.add-to-schedule');
+    if (addToScheduleButton) {
+        addToScheduleButton.addEventListener('click', () => scheduleModule.addInstanceToSchedule(instance));
+    }
+    
     return instanceElement;
 }
 
 // Load a specific instance
 function loadInstance(instance) {
     // Set the timer values
-    workMinutesInput.value = instance.workTimer.minutes;
-    workSecondsInput.value = instance.workTimer.seconds;
-    breakMinutesInput.value = instance.breakTimer.minutes;
-    breakSecondsInput.value = instance.breakTimer.seconds;
+    timerModule.setTimerValues(
+        instance.workTimer.minutes,
+        instance.workTimer.seconds,
+        instance.breakTimer.minutes,
+        instance.breakTimer.seconds
+    );
     
-    timerStatusElement.textContent = `Loaded timer: ${instance.name}`;
+    timerModule.setTimerStatus(`Loaded timer: ${instance.name}`);
 }
 
 // Delete an instance
 function deleteInstance(id) {
-    fetch(`/api/instances/${id}`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            loadInstances(); // Refresh the instances list
-            timerStatusElement.textContent = 'Timer deleted successfully';
-        } else {
-            timerStatusElement.textContent = 'Error deleting timer';
-            console.error('Error:', data.message);
+    serializationModule.deleteInstance(id)
+        .then(success => {
+            if (success) {
+                loadInstances(); // Refresh the instances list
+            }
+        });
+}
+
+// Save current timer settings as a named instance
+function saveInstance() {
+    const name = instanceNameInput.value.trim();
+    
+    if (!name) {
+        serializationModule.setStatus('Please enter a name for the timer');
+        return;
+    }
+    
+    // Get current timer values
+    const timerValues = timerModule.getTimerValues();
+    
+    // Validate input
+    if (timerValues.workMinutes === 0 && timerValues.workSeconds === 0) {
+        serializationModule.setStatus('Please set a work time greater than 0');
+        return;
+    }
+    
+    if (timerValues.breakMinutes === 0 && timerValues.breakSeconds === 0) {
+        serializationModule.setStatus('Please set a break time greater than 0');
+        return;
+    }
+    
+    // Create instance data
+    const instanceData = {
+        name: name,
+        workTimer: {
+            minutes: timerValues.workMinutes,
+            seconds: timerValues.workSeconds
+        },
+        breakTimer: {
+            minutes: timerValues.breakMinutes,
+            seconds: timerValues.breakSeconds
         }
-    })
-    .catch(error => {
-        timerStatusElement.textContent = 'Error deleting timer';
-        console.error('Error:', error);
+    };
+    
+    // Save instance
+    serializationModule.saveInstance(instanceData)
+        .then(() => {
+            instanceNameInput.value = '';
+            loadInstances(); // Refresh the instances list
+        })
+        .catch(error => {
+            console.error('Error saving instance:', error);
+        });
+}
+
+// Load all saved schedules
+function loadSchedules() {
+    serializationModule.loadSchedules()
+        .then(schedules => {
+            // Clear the current list
+            savedSchedulesList.innerHTML = '';
+            
+            if (schedules && schedules.length > 0) {
+                // Hide the "no schedules" message
+                noSchedulesMessage.style.display = 'none';
+                
+                // Add each schedule to the list
+                schedules.forEach(schedule => {
+                    const scheduleElement = scheduleModule.createScheduleElement(
+                        schedule,
+                        scheduleModule.runSchedule,
+                        deleteSchedule
+                    );
+                    savedSchedulesList.appendChild(scheduleElement);
+                });
+            } else {
+                // Show the "no schedules" message
+                noSchedulesMessage.style.display = 'block';
+            }
+        });
+}
+
+// Delete a schedule
+function deleteSchedule(id) {
+    serializationModule.deleteSchedule(id)
+        .then(success => {
+            if (success) {
+                loadSchedules(); // Refresh the schedules list
+            }
+        });
+}
+
+// Create a new work schedule
+function createSchedule() {
+    const name = scheduleNameInput.value.trim();
+    
+    if (!name) {
+        serializationModule.setStatus('Please enter a name for the schedule');
+        return;
+    }
+    
+    scheduleModule.createSchedule(name);
+    scheduleNameInput.value = '';
+    
+    // Reload instances to show "Add to Schedule" button
+    loadInstances();
+}
+
+// Set up event listeners
+function setupEventListeners() {
+    // Save instance button
+    saveInstanceButton.addEventListener('click', saveInstance);
+    
+    // Create schedule button
+    createScheduleButton.addEventListener('click', createSchedule);
+    
+    // Listen for schedules updated event
+    document.addEventListener('schedules-updated', () => {
+        loadSchedules();
+        loadInstances();
     });
 }
 
-// Load instances when the page loads
-document.addEventListener('DOMContentLoaded', loadInstances);
+// Initialize the application
+function initializeApp() {
+    initializeModules();
+    setupNavigation();
+    setupEventListeners();
+    loadInstances();
+    loadSchedules();
+}
 
-// Event listeners
-startTimerButton.addEventListener('click', startTimer);
-workDoneButton.addEventListener('click', handleWorkDone);
-breakDoneButton.addEventListener('click', handleBreakDone);
-saveInstanceButton.addEventListener('click', saveInstance);
+// Initialize the application when the DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeApp);

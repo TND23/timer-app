@@ -8,102 +8,187 @@
 </head>
 <body>
     <div class="container">
-        <h1>Pomodoro</h1>
-        <div class="pomodoro-instances">
-            <h3>Saved Timers</h3>
-            <div id="saved-instances-list">
-                <!-- Saved instances will be displayed here -->
-                <p id="no-instances-message">No saved timers yet</p>
-            </div>
-            <div class="save-instance-form">
-                <input type="text" id="instance-name" placeholder="Timer name">
-                <button id="save-instance">Save Current Timer</button>
-            </div>
-        </div>
-        <div class="work-timer-setup">
-            <div class="timer-inputs">
-                <div class="timer-section">
-                    <h3>Work Duration</h3>
-                    <div class="input-group">
-                        <label for="work-minutes">Minutes:</label>
-                        <input type="number" id="work-minutes" min="0" value="0">
-                    </div>
-                    <div class="input-group">
-                        <label for="work-seconds">Seconds:</label>
-                        <input type="number" id="work-seconds" min="0" max="59" value="0">
-                    </div>
-                </div>
-                <div class="timer-section">
-                    <h3>Break Duration</h3>
-                    <div class="input-group">
-                        <label for="break-minutes">Minutes:</label>
-                        <input type="number" id="break-minutes" min="0" value="0">
-                    </div>
-                    <div class="input-group">
-                        <label for="break-seconds">Seconds:</label>
-                        <input type="number" id="break-seconds" min="0" max="59" value="0">
-                    </div>
-                </div>
-            </div>
-            <button id="start-timer">Start Work Timer</button>
-        </div>
-        <div class="work-timer-display">
-            <div id="time-remaining">00:00</div>
-            <div id="timer-status"></div>
-        </div>
-        <div class="work-timer-complete hidden" id="work-timer-complete">
-            <p>Work timer complete!</p>
-            <div class="feedback-toggle">
-                <label class="toggle-label">
-                    <input type="checkbox" id="work-feedback-toggle">
-                    <span>Include feedback</span>
-                </label>
-            </div>
-            <div class="feedback-form collapsed" id="work-feedback-form">
-                <h3>Work Session Feedback</h3>
-                <div class="feedback-item">
-                    <label for="work-time-rating">How did the time duration feel? (1-10)</label>
-                    <div class="rating-container">
-                        <input type="range" id="work-time-rating" min="1" max="10" value="5">
-                        <span id="work-rating-value">5</span>
-                    </div>
-                </div>
-                <div class="feedback-item">
-                    <label>Did you enter a flow state?</label>
-                    <div class="flow-options">
-                        <label class="radio-label">
-                            <input type="radio" name="flow-state" value="yes"> Yes
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="flow-state" value="no"> No
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <button id="work-done">Work done!</button>
-        </div>
+        <header>
+            <h1>Pomodoro</h1>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" class="nav-link active" data-section="timer">Timer</a></li>
+                    <li><a href="#" class="nav-link" data-section="saved-timers">Saved Timers</a></li>
+                    <li><a href="#" class="nav-link" data-section="schedules">Work Schedules</a></li>
+                </ul>
+            </nav>
+        </header>
         
-        <div class="break-timer-complete hidden" id="break-timer-complete">
-            <p>Break timer complete!</p>
-            <div class="feedback-toggle">
-                <label class="toggle-label">
-                    <input type="checkbox" id="break-feedback-toggle">
-                    <span>Include feedback</span>
-                </label>
-            </div>
-            <div class="feedback-form collapsed" id="break-feedback-form">
-                <h3>Break Session Feedback</h3>
-                <div class="feedback-item">
-                    <label for="break-time-rating">How refreshing was the break? (1-10)</label>
-                    <div class="rating-container">
-                        <input type="range" id="break-time-rating" min="1" max="10" value="5">
-                        <span id="break-rating-value">5</span>
+        <main>
+            <!-- Timer Section (default view) -->
+            <section id="timer-section" class="app-section active">
+                <!-- Timer Setup Section -->
+                <div class="work-timer-setup">
+                    <div class="timer-inputs">
+                        <div class="timer-section">
+                            <h3>Work Duration</h3>
+                            <div class="input-group">
+                                <label for="work-minutes">Minutes:</label>
+                                <input type="number" id="work-minutes" min="0" value="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="work-seconds">Seconds:</label>
+                                <input type="number" id="work-seconds" min="0" max="59" value="0">
+                            </div>
+                        </div>
+                        <div class="timer-section">
+                            <h3>Break Duration</h3>
+                            <div class="input-group">
+                                <label for="break-minutes">Minutes:</label>
+                                <input type="number" id="break-minutes" min="0" value="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="break-seconds">Seconds:</label>
+                                <input type="number" id="break-seconds" min="0" max="59" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <button id="start-timer">Start Work Timer</button>
+                </div>
+                
+                <!-- Timer Display Section -->
+                <div class="work-timer-display">
+                    <div id="time-remaining">00:00</div>
+                    <div id="timer-status"></div>
+                </div>
+                
+                <!-- Work Timer Complete Section -->
+                <div class="work-timer-complete hidden" id="work-timer-complete">
+                    <p>Work timer complete!</p>
+                    <div class="feedback-toggle">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="work-feedback-toggle">
+                            <span>Include feedback</span>
+                        </label>
+                    </div>
+                    <div class="feedback-form collapsed" id="work-feedback-form">
+                        <h3>Work Session Feedback</h3>
+                        <div class="feedback-item">
+                            <label for="work-time-rating">How did the time duration feel? (1-10)</label>
+                            <div class="rating-container">
+                                <input type="range" id="work-time-rating" min="1" max="10" value="5">
+                                <span id="work-rating-value">5</span>
+                            </div>
+                        </div>
+                        <div class="feedback-item">
+                            <label>Did you enter a flow state?</label>
+                            <div class="flow-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="flow-state" value="yes"> Yes
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="flow-state" value="no"> No
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="work-done">Work done!</button>
+                </div>
+                
+                <!-- Break Timer Complete Section -->
+                <div class="break-timer-complete hidden" id="break-timer-complete">
+                    <p>Break timer complete!</p>
+                    <div class="feedback-toggle">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="break-feedback-toggle">
+                            <span>Include feedback</span>
+                        </label>
+                    </div>
+                    <div class="feedback-form collapsed" id="break-feedback-form">
+                        <h3>Break Session Feedback</h3>
+                        <div class="feedback-item">
+                            <label for="break-time-rating">How refreshing was the break? (1-10)</label>
+                            <div class="rating-container">
+                                <input type="range" id="break-time-rating" min="1" max="10" value="5">
+                                <span id="break-rating-value">5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="break-actions">
+                        <button id="break-done">Break done!</button>
+                        <button id="next-timer" class="hidden">Next Timer</button>
                     </div>
                 </div>
-            </div>
-            <button id="break-done">Break done!</button>
-        </div>
+                
+                <!-- Schedule Runner (initially hidden) -->
+                <div class="schedule-runner hidden" id="schedule-runner">
+                    <h3>Running Schedule: <span id="running-schedule-name"></span></h3>
+                    <div class="schedule-progress">
+                        <div id="current-timer-info">
+                            <div class="timer-name">Current Timer: <span id="current-timer-name"></span></div>
+                            <div class="timer-count">Timer <span id="current-timer-index"></span> of <span id="total-timers"></span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Schedule Feedback (initially hidden) -->
+                <div class="schedule-feedback hidden" id="schedule-feedback">
+                    <h3>Schedule Complete!</h3>
+                    <p>How was your work day?</p>
+                    <div class="feedback-item">
+                        <label for="schedule-feedback-text">Your thoughts:</label>
+                        <textarea id="schedule-feedback-text" rows="4" placeholder="Share your thoughts about today's work schedule..."></textarea>
+                    </div>
+                    <div class="feedback-item">
+                        <label for="schedule-rating">Rate your day (1-10):</label>
+                        <div class="rating-container">
+                            <input type="range" id="schedule-rating" min="1" max="10" value="5">
+                            <span id="schedule-rating-value">5</span>
+                        </div>
+                    </div>
+                    <button id="submit-schedule-feedback">Submit Feedback</button>
+                </div>
+            </section>
+            
+            <!-- Saved Timers Section -->
+            <section id="saved-timers-section" class="app-section">
+                <div class="pomodoro-instances">
+                    <h3>Saved Timers</h3>
+                    <div id="saved-instances-list">
+                        <!-- Saved instances will be displayed here -->
+                        <p id="no-instances-message">No saved timers yet</p>
+                    </div>
+                    <div class="save-instance-form">
+                        <input type="text" id="instance-name" placeholder="Timer name">
+                        <button id="save-instance">Save Current Timer</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Work Schedules Section -->
+            <section id="schedules-section" class="app-section">
+                <div class="work-schedules">
+                    <h3>Work Schedules</h3>
+                    <div id="saved-schedules-list">
+                        <!-- Saved schedules will be displayed here -->
+                        <p id="no-schedules-message">No saved work schedules yet</p>
+                    </div>
+                    <div class="save-schedule-form">
+                        <input type="text" id="schedule-name" placeholder="Schedule name">
+                        <button id="create-schedule">Create New Schedule</button>
+                    </div>
+                </div>
+                
+                <!-- Schedule Builder (initially hidden) -->
+                <div class="schedule-builder hidden" id="schedule-builder">
+                    <h3>Build Work Schedule: <span id="current-schedule-name"></span></h3>
+                    <div id="schedule-instances-list">
+                        <!-- Selected instances will be displayed here -->
+                        <p id="no-schedule-instances-message">No timers added to schedule yet</p>
+                    </div>
+                    <div class="schedule-actions">
+                        <button id="save-schedule">Save Schedule</button>
+                        <button id="cancel-schedule">Cancel</button>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

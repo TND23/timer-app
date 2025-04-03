@@ -5,6 +5,7 @@ const app = express();
 const PORT = 3000;
 const dataDir = path.join(__dirname, 'data');
 const instancesDir = path.join(dataDir, 'instances');
+const schedulesDir = path.join(dataDir, 'schedules');
 // Middleware to parse JSON bodies
 app.use(express.json());
 
@@ -17,6 +18,9 @@ if (!fs.existsSync(dataDir)) {
 }
 if (!fs.existsSync(instancesDir)) {
     fs.mkdirSync(instancesDir, { recursive: true });
+}
+if (!fs.existsSync(schedulesDir)) {
+    fs.mkdirSync(schedulesDir, { recursive: true });
 }
 
 // Helper function to get the week number
@@ -190,5 +194,163 @@ app.delete('/api/instances/:id', (req, res) => {
     } catch (error) {
         console.error('Error deleting pomodoro instance:', error);
         res.status(500).json({ success: false, message: 'Failed to delete pomodoro instance' });
+    }
+});
+
+// API endpoint to save a work schedule
+app.post('/api/save-schedule', (req, res) => {
+    try {
+        const { name, instances } = req.body;
+        
+        if (!name || !instances || !Array.isArray(instances) || instances.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing required fields: name and instances (array) are required' 
+            });
+        }
+        
+        // Create a unique filename based on the schedule name
+        const filename = `${name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+        const filePath = path.join(schedulesDir, filename);
+        
+        // Create the schedule data
+        const scheduleData = {
+            name,
+            instances,
+            createdAt: new Date().toISOString()
+        };
+        
+        // Write to file
+        fs.writeFileSync(filePath, JSON.stringify(scheduleData, null, 2));
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Work schedule saved successfully',
+            schedule: scheduleData
+        });
+    } catch (error) {
+        console.error('Error saving work schedule:', error);
+        res.status(500).json({ success: false, message: 'Failed to save work schedule' });
+    }
+});
+
+// API endpoint to get all saved work schedules
+app.get('/api/schedules', (req, res) => {
+    try {
+        // Ensure the schedules directory exists
+        if (!fs.existsSync(schedulesDir)) {
+            fs.mkdirSync(schedulesDir, { recursive: true });
+            return res.status(200).json({ schedules: [] });
+        }
+        
+        // Read all files in the schedules directory
+        const files = fs.readdirSync(schedulesDir);
+        const schedules = [];
+        
+        // Parse each file and add to schedules array
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                const filePath = path.join(schedulesDir, file);
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+                const schedule = JSON.parse(fileContent);
+                schedule.id = file.replace('.json', ''); // Use filename as ID
+                schedules.push(schedule);
+            }
+        }
+        
+        res.status(200).json({ schedules });
+    } catch (error) {
+        console.error('Error getting work schedules:', error);
+        res.status(500).json({ success: false, message: 'Failed to get work schedules' });
+    }
+});
+
+// API endpoint to get a specific work schedule
+app.get('/api/schedules/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const filePath = path.join(schedulesDir, `${id}.json`);
+        
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: 'Schedule not found' });
+        }
+        
+        // Read the file
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const schedule = JSON.parse(fileContent);
+        schedule.id = id;
+        
+        res.status(200).json({ schedule });
+    } catch (error) {
+        console.error('Error getting work schedule:', error);
+        res.status(500).json({ success: false, message: 'Failed to get work schedule' });
+    }
+});
+
+// API endpoint to delete a work schedule
+app.delete('/api/schedules/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const filePath = path.join(schedulesDir, `${id}.json`);
+        
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: 'Schedule not found' });
+        }
+        
+        // Delete the file
+        fs.unlinkSync(filePath);
+        
+        res.status(200).json({ success: true, message: 'Schedule deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting work schedule:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete work schedule' });
+    }
+});
+
+// API endpoint to save schedule completion feedback
+app.post('/api/schedule-feedback/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const { feedback, rating } = req.body;
+        
+        if (feedback === undefined || rating === undefined) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing required fields: feedback and rating are required' 
+            });
+        }
+        
+        // Create a unique filename for the feedback
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `${id}_feedback_${timestamp}.json`;
+        const filePath = path.join(schedulesDir, 'feedback', filename);
+        
+        // Ensure feedback directory exists
+        const feedbackDir = path.join(schedulesDir, 'feedback');
+        if (!fs.existsSync(feedbackDir)) {
+            fs.mkdirSync(feedbackDir, { recursive: true });
+        }
+        
+        // Create the feedback data
+        const feedbackData = {
+            scheduleId: id,
+            feedback,
+            rating: parseInt(rating),
+            submittedAt: new Date().toISOString()
+        };
+        
+        // Write to file
+        fs.writeFileSync(filePath, JSON.stringify(feedbackData, null, 2));
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Schedule feedback saved successfully',
+            feedback: feedbackData
+        });
+    } catch (error) {
+        console.error('Error saving schedule feedback:', error);
+        res.status(500).json({ success: false, message: 'Failed to save schedule feedback' });
     }
 });
