@@ -419,18 +419,16 @@ app.delete('/api/schedules/:id', (req, res) => {
     }
 });
 
-// API endpoint to get all tags
 app.get('/api/tags', (req, res) => {
     try {
         if (!fs.existsSync(tagsDir)) {
             fs.mkdirSync(tagsDir, { recursive: true });
-            return res.status(200).json({ tags: ["balls"] });
+            return res.status(200).json({ tags: [] });
         }       
         const tagsFilePath = path.join(tagsDir, 'tags.json');
         
         if (!fs.existsSync(tagsFilePath)) {
-            // If tags file doesn't exist, return empty array
-            return res.status(200).json({ tags: ["Boxes"] });
+            return res.status(200).json({ tags: [] });
         }
         
         // Read and parse tags file

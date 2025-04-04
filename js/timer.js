@@ -311,6 +311,15 @@ function timerComplete() {
             // Show next timer button
             nextTimerButton.classList.remove('hidden');
             
+            // Check if this is the last timer in the schedule
+            if (window.scheduleModule.isLastTimer()) {
+                // Change button text to "Great work!" for the last timer
+                nextTimerButton.textContent = "Great work!";
+            } else {
+                // Reset button text to "Next Timer" for non-last timers
+                nextTimerButton.textContent = "Next Timer";
+            }
+            
             // User will need to click "Done" or "Next Timer" to proceed
         }
     }
