@@ -43,8 +43,13 @@ export function saveInstance(instanceData) {
     // Show saving status
     timerStatusElement.textContent = 'Saving timer...';
     
-    return fetch('/api/save-instance', {
-        method: 'POST',
+    // If the instance has an id, it's an existing instance being updated
+    const isUpdate = instanceData.id !== undefined;
+    const endpoint = isUpdate ? `/api/instances/${instanceData.id}` : '/api/save-instance';
+    const method = isUpdate ? 'PUT' : 'POST';
+    
+    return fetch(endpoint, {
+        method: method,
         headers: {
             'Content-Type': 'application/json'
         },
@@ -53,16 +58,16 @@ export function saveInstance(instanceData) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            timerStatusElement.textContent = 'Timer saved successfully';
+            timerStatusElement.textContent = isUpdate ? 'Timer updated successfully' : 'Timer saved successfully';
             return data;
         } else {
-            timerStatusElement.textContent = 'Error saving timer';
+            timerStatusElement.textContent = isUpdate ? 'Error updating timer' : 'Error saving timer';
             console.error('Error:', data.message);
             throw new Error(data.message);
         }
     })
     .catch(error => {
-        timerStatusElement.textContent = 'Error saving timer';
+        timerStatusElement.textContent = isUpdate ? 'Error updating timer' : 'Error saving timer';
         console.error('Error:', error);
         throw error;
     });

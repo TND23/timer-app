@@ -86,7 +86,15 @@ const scheduleElements = {
 const savedInstancesList = document.getElementById('saved-instances-list');
 const instanceNameInput = document.getElementById('instance-name');
 const saveInstanceButton = document.getElementById('save-instance');
+const clearTimerEditorButton = document.getElementById('clear-timer-editor');
 const noInstancesMessage = document.getElementById('no-instances-message');
+const editWorkMinutesInput = document.getElementById('edit-work-minutes');
+const editWorkSecondsInput = document.getElementById('edit-work-seconds');
+const editBreakMinutesInput = document.getElementById('edit-break-minutes');
+const editBreakSecondsInput = document.getElementById('edit-break-seconds');
+
+// Variable to track if we're editing an existing timer
+let currentEditingTimerId = null;
 
 // DOM elements for saved schedules section
 const savedSchedulesList = document.getElementById('saved-schedules-list');
@@ -210,15 +218,33 @@ function createInstanceElement(instance) {
 
 // Load a specific instance
 function loadInstance(instance) {
-    // Set the timer values
-    timerModule.setTimerValues(
-        instance.workTimer.minutes,
-        instance.workTimer.seconds,
-        instance.breakTimer.minutes,
-        instance.breakTimer.seconds
-    );
+    // Populate the timer editor
+    editWorkMinutesInput.value = instance.workTimer.minutes;
+    editWorkSecondsInput.value = instance.workTimer.seconds;
+    editBreakMinutesInput.value = instance.breakTimer.minutes;
+    editBreakSecondsInput.value = instance.breakTimer.seconds;
+    instanceNameInput.value = instance.name;
     
-    timerModule.setTimerStatus(`Loaded timer: ${instance.name}`);
+    // Set the current editing timer ID
+    currentEditingTimerId = instance.id;
+    
+    // Scroll to the timer editor
+    document.querySelector('.timer-editor').scrollIntoView({ behavior: 'smooth' });
+    
+    // Show a status message
+    serializationModule.setStatus(`Editing timer: ${instance.name}`);
+}
+
+// Clear the timer editor
+function clearTimerEditor() {
+    editWorkMinutesInput.value = 0;
+    editWorkSecondsInput.value = 0;
+    editBreakMinutesInput.value = 0;
+    editBreakSecondsInput.value = 0;
+    instanceNameInput.value = '';
+    currentEditingTimerId = null;
+    
+    serializationModule.setStatus('Timer editor cleared');
 }
 
 // Delete an instance
@@ -240,16 +266,19 @@ function saveInstance() {
         return;
     }
     
-    // Get current timer values
-    const timerValues = timerModule.getTimerValues();
+    // Get timer values from the editor
+    const workMinutes = parseInt(editWorkMinutesInput.value) || 0;
+    const workSeconds = parseInt(editWorkSecondsInput.value) || 0;
+    const breakMinutes = parseInt(editBreakMinutesInput.value) || 0;
+    const breakSeconds = parseInt(editBreakSecondsInput.value) || 0;
     
     // Validate input
-    if (timerValues.workMinutes === 0 && timerValues.workSeconds === 0) {
+    if (workMinutes === 0 && workSeconds === 0) {
         serializationModule.setStatus('Please set a work time greater than 0');
         return;
     }
     
-    if (timerValues.breakMinutes === 0 && timerValues.breakSeconds === 0) {
+    if (breakMinutes === 0 && breakSeconds === 0) {
         serializationModule.setStatus('Please set a break time greater than 0');
         return;
     }
@@ -258,14 +287,19 @@ function saveInstance() {
     const instanceData = {
         name: name,
         workTimer: {
-            minutes: timerValues.workMinutes,
-            seconds: timerValues.workSeconds
+            minutes: workMinutes,
+            seconds: workSeconds
         },
         breakTimer: {
-            minutes: timerValues.breakMinutes,
-            seconds: timerValues.breakSeconds
+            minutes: breakMinutes,
+            seconds: breakSeconds
         }
     };
+    
+    // If we're editing an existing timer, include its ID
+    if (currentEditingTimerId) {
+        instanceData.id = currentEditingTimerId;
+    }
     
     // Save instance
     serializationModule.saveInstance(instanceData)
@@ -351,6 +385,9 @@ function createSchedule() {
 function setupEventListeners() {
     // Save instance button
     saveInstanceButton.addEventListener('click', saveInstance);
+    
+    // Clear timer editor button
+    clearTimerEditorButton.addEventListener('click', clearTimerEditor);
     
     // Create schedule button
     createScheduleButton.addEventListener('click', createSchedule);

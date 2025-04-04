@@ -181,6 +181,59 @@ app.get('/api/instances', (req, res) => {
     }
 });
 
+// API endpoint to update a pomodoro instance
+app.put('/api/instances/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const { name, workTimer, breakTimer } = req.body;
+        const filePath = path.join(instancesDir, `${id}.json`);
+        
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ success: false, message: 'Instance not found' });
+        }
+        
+        if (!name || !workTimer || !breakTimer) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing required fields: name, workTimer, and breakTimer are required' 
+            });
+        }
+        
+        // Read existing data to preserve creation date
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const existingData = JSON.parse(fileContent);
+        
+        // Create the updated instance data
+        const instanceData = {
+            name,
+            workTimer,
+            breakTimer,
+            updatedAt: new Date().toISOString()
+        };
+        
+        // Preserve createdAt date
+        if (existingData.createdAt) {
+            instanceData.createdAt = existingData.createdAt;
+        }
+        
+        // Write to file
+        fs.writeFileSync(filePath, JSON.stringify(instanceData, null, 2));
+        
+        // Add id to response
+        instanceData.id = id;
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Pomodoro instance updated successfully',
+            instance: instanceData
+        });
+    } catch (error) {
+        console.error('Error updating pomodoro instance:', error);
+        res.status(500).json({ success: false, message: 'Failed to update pomodoro instance' });
+    }
+});
+
 // API endpoint to delete a pomodoro instance
 app.delete('/api/instances/:id', (req, res) => {
     try {
