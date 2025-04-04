@@ -132,6 +132,11 @@ button {
     transition: background-color 0.3s;
 }
 
+button.timer-active{
+    cursor: not-allowed;
+    background-color: #e92f2f;
+}
+
 button:hover {
     background-color: #45a049;
 }
@@ -275,7 +280,7 @@ button:hover {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* Work Schedules Styles */
@@ -552,4 +557,128 @@ button:hover {
 
 #next-timer:hover {
     background-color: #138496;
+}
+
+/* Tag Styles */
+.tag-container {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+#work-choose-tag, #break-choose-tag {
+    background-color: #6c757d;
+    padding: 8px 15px;
+    font-size: 14px;
+}
+
+.tag-display {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #e9ecef;
+    border-radius: 15px;
+    color: #495057;
+    font-size: 14px;
+    border: 1px solid #ced4da;
+}
+
+.tag-popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.tag-popup {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.tag-popup h3 {
+    margin-bottom: 15px;
+    color: #444;
+    font-size: 18px;
+    text-align: center;
+}
+
+.tag-search {
+    margin-bottom: 15px;
+}
+
+#tag-search-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.tags-list {
+    margin: 15px 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.tag-item {
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.tag-item:hover {
+    background-color: #e9ecef;
+}
+
+.no-tags-message {
+    color: #6c757d;
+    text-align: center;
+    padding: 10px;
+    font-style: italic;
+}
+
+.new-tag-form {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+#new-tag-input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#create-tag-button {
+    background-color: #28a745;
+    padding: 8px 15px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+#close-tag-popup {
+    background-color: #6c757d;
+    width: 100%;
+    margin-top: 10px;
 }

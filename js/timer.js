@@ -3,6 +3,7 @@
 
 // Timer variables
 import alarmModule from './alarm.js';
+import tagModule from './tag.js';
 
 let timerInterval;
 let startTime;
@@ -18,12 +19,14 @@ let sessionData = {
     work: {
         startDateTime: '',
         elapsedTime: '',
-        feedback: null
+        feedback: null,
+        tag: null
     },
     break: {
         startDateTime: '',
         elapsedTime: '',
-        feedback: null
+        feedback: null,
+        tag: null
     }
 };
 
@@ -48,6 +51,10 @@ let workFeedbackToggle;
 let breakFeedbackToggle;
 let workFeedbackForm;
 let breakFeedbackForm;
+let workChooseTagButton;
+let breakChooseTagButton;
+let workTagDisplay;
+let breakTagDisplay;
 
 // Initialize timer module
 export function initTimerModule(elements) {
@@ -72,6 +79,10 @@ export function initTimerModule(elements) {
     breakFeedbackToggle = elements.breakFeedbackToggle;
     workFeedbackForm = elements.workFeedbackForm;
     breakFeedbackForm = elements.breakFeedbackForm;
+    workChooseTagButton = elements.workChooseTagButton;
+    breakChooseTagButton = elements.breakChooseTagButton;
+    workTagDisplay = elements.workTagDisplay;
+    breakTagDisplay = elements.breakTagDisplay;
     
     // Set up event listeners
     startTimerButton.addEventListener('click', startTimer);
@@ -83,8 +94,20 @@ export function initTimerModule(elements) {
         includeFeedback.work = this.checked;
         if (this.checked) {
             workFeedbackForm.classList.remove('collapsed');
+            // Show tag container when feedback is enabled
+            if (workChooseTagButton) {
+                workChooseTagButton.parentElement.classList.remove('hidden');
+            }
         } else {
             workFeedbackForm.classList.add('collapsed');
+            // Hide tag container when feedback is disabled
+            if (workChooseTagButton) {
+                workChooseTagButton.parentElement.classList.add('hidden');
+            }
+            // Reset work tag
+            if (window.tagModule) {
+                window.tagModule.resetTags();
+            }
         }
     });
     
@@ -92,8 +115,20 @@ export function initTimerModule(elements) {
         includeFeedback.break = this.checked;
         if (this.checked) {
             breakFeedbackForm.classList.remove('collapsed');
+            // Show tag container when feedback is enabled
+            if (breakChooseTagButton) {
+                breakChooseTagButton.parentElement.classList.remove('hidden');
+            }
         } else {
             breakFeedbackForm.classList.add('collapsed');
+            // Hide tag container when feedback is disabled
+            if (breakChooseTagButton) {
+                breakChooseTagButton.parentElement.classList.add('hidden');
+            }
+            // Reset break tag
+            if (window.tagModule) {
+                window.tagModule.resetTags();
+            }
         }
     });
     
@@ -188,14 +223,19 @@ export function startTimer(isScheduleRunning = false) {
         work: {
             startDateTime: startTime.toISOString(),
             elapsedTime: '',
-            feedback: null
+            feedback: null,
+            tag: null
         },
         break: {
             startDateTime: '',
             elapsedTime: '',
-            feedback: null
+            feedback: null,
+            tag: null
         }
     };
+    
+    // Reset tags
+    tagModule.resetTags();
     
     // Update timer display
     timeRemainingElement.textContent = formatTime(remainingSeconds);
@@ -282,6 +322,7 @@ export function disableInputs() {
     breakMinutesInput.disabled = true;
     breakSecondsInput.disabled = true;
     startTimerButton.disabled = true;
+    startTimerButton.classList.add("timer-active");
 }
 
 // Enable all inputs
@@ -291,6 +332,7 @@ export function enableInputs() {
     breakMinutesInput.disabled = false;
     breakSecondsInput.disabled = false;
     startTimerButton.disabled = false;
+    startTimerButton.classList.remove("timer-active");    
 }
 
 // Reset the timer
@@ -314,6 +356,9 @@ export function resetTimer() {
     
     // Reset feedback forms
     resetFeedbackForms();
+    
+    // Reset tags
+    tagModule.resetTags();
 }
 
 // Reset feedback forms
@@ -337,6 +382,14 @@ function resetFeedbackForms() {
     workFeedbackForm.classList.add('collapsed');
     breakFeedbackForm.classList.add('collapsed');
     
+    // Hide tag containers
+    if (workChooseTagButton) {
+        workChooseTagButton.parentElement.classList.add('hidden');
+    }
+    if (breakChooseTagButton) {
+        breakChooseTagButton.parentElement.classList.add('hidden');
+    }
+    
     // Reset feedback inclusion
     includeFeedback.work = false;
     includeFeedback.break = false;
@@ -344,6 +397,8 @@ function resetFeedbackForms() {
     // Reset session data
     sessionData.work.feedback = null;
     sessionData.break.feedback = null;
+    sessionData.work.tag = null;
+    sessionData.break.tag = null;
 }
 
 // Handle work done button click
@@ -365,6 +420,9 @@ function handleWorkDone() {
     } else {
         sessionData.work.feedback = null;
     }
+    
+    // Include tag if one was selected
+    sessionData.work.tag = tagModule.getWorkTag();
     
     // Start the break timer
     startBreakTimer();
@@ -399,6 +457,9 @@ function handleBreakDone() {
     } else {
         sessionData.break.feedback = null;
     }
+    
+    // Include tag if one was selected
+    sessionData.break.tag = tagModule.getBreakTag();
     
     // Save data to JSON file
     if (window.serializationModule) {
@@ -435,6 +496,9 @@ export function handleNextTimer() {
     } else {
         sessionData.break.feedback = null;
     }
+    
+    // Include tag if one was selected
+    sessionData.break.tag = tagModule.getBreakTag();
     
     // Save data to JSON file
     if (window.serializationModule) {

@@ -6,6 +6,7 @@ import timerModule from './js/timer.js';
 import serializationModule from './js/serialization.js';
 import scheduleModule from './js/schedule.js';
 import alarmModule from './js/alarm.js';
+import tagModule from './js/tag.js';
 
 // DOM elements for navigation
 const navLinks = document.querySelectorAll('.nav-link');
@@ -32,12 +33,30 @@ const timerElements = {
     workFeedbackToggle: document.getElementById('work-feedback-toggle'),
     breakFeedbackToggle: document.getElementById('break-feedback-toggle'),
     workFeedbackForm: document.getElementById('work-feedback-form'),
-    breakFeedbackForm: document.getElementById('break-feedback-form')
+    breakFeedbackForm: document.getElementById('break-feedback-form'),
+    workChooseTagButton: document.getElementById('work-choose-tag'),
+    breakChooseTagButton: document.getElementById('break-choose-tag'),
+    workTagDisplay: document.getElementById('work-tag-display'),
+    breakTagDisplay: document.getElementById('break-tag-display')
 };
 
 // DOM elements for serialization module
 const serializationElements = {
     timerStatusElement: document.getElementById('timer-status')
+};
+
+// DOM elements for tag module
+const tagElements = {
+    tagPopupContainer: document.getElementById('tag-popup-container'),
+    tagSearchInput: document.getElementById('tag-search-input'),
+    tagsList: document.getElementById('tags-list'),
+    newTagInput: document.getElementById('new-tag-input'),
+    createTagButton: document.getElementById('create-tag-button'),
+    closeTagPopupButton: document.getElementById('close-tag-popup'),
+    workChooseTagButton: document.getElementById('work-choose-tag'),
+    breakChooseTagButton: document.getElementById('break-choose-tag'),
+    workTagDisplay: document.getElementById('work-tag-display'),
+    breakTagDisplay: document.getElementById('break-tag-display')
 };
 
 // DOM elements for schedule module
@@ -86,6 +105,9 @@ function initializeModules() {
     // Initialize serialization module
     serializationModule.initSerializationModule(serializationElements);
     
+    // Initialize tag module
+    tagModule.initTagModule(tagElements);
+    
     // Initialize schedule module with references to other modules
     scheduleModule.initScheduleModule(scheduleElements, {
         timerModule,
@@ -95,6 +117,10 @@ function initializeModules() {
     // Make modules available globally for cross-module communication
     window.alarmModule = alarmModule;
     window.serializationModule = serializationModule;
+    window.tagModule = tagModule;
+    
+    // Now that all modules are available globally, load tags
+    tagModule.loadTags();
 }
 
 // Set up navigation

@@ -87,6 +87,10 @@
                             </div>
                         </div>
                     </div>
+                    <div class="tag-container hidden">
+                        <button id="work-choose-tag">Choose Tag</button>
+                        <div id="work-tag-display" class="tag-display hidden"></div>
+                    </div>
                     <button id="work-done">Work done!</button>
                 </div>
                 
@@ -108,6 +112,10 @@
                                 <span id="break-rating-value">5</span>
                             </div>
                         </div>
+                    </div>
+                    <div class="tag-container hidden">
+                        <button id="break-choose-tag">Choose Tag</button>
+                        <div id="break-tag-display" class="tag-display hidden"></div>
                     </div>
                     <div class="break-actions">
                         <button id="break-done">Break done!</button>
@@ -207,6 +215,24 @@
             </section>
         </main>
     </div>
+    <!-- Tag Popup Container -->
+    <div id="tag-popup-container" class="tag-popup-container hidden">
+        <div class="tag-popup">
+            <h3>Choose a Tag</h3>
+            <div class="tag-search">
+                <input type="text" id="tag-search-input" placeholder="Search tags...">
+            </div>
+            <div id="tags-list" class="tags-list">
+                <!-- Tags will be displayed here -->
+            </div>
+            <div class="new-tag-form">
+                <input type="text" id="new-tag-input" placeholder="Create new tag...">
+                <button id="create-tag-button">Create</button>
+            </div>
+            <button id="close-tag-popup">Close</button>
+        </div>
+    </div>
+    
     <script type="module" src="script.js"></script>
 </body>
 </html>

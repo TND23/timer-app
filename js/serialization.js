@@ -215,6 +215,70 @@ export function setStatus(message) {
     timerStatusElement.textContent = message;
 }
 
+// Save a tag
+export function saveTag(tag) {
+    return fetch('/api/tags', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tag })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            timerStatusElement.textContent = 'Tag saved successfully';
+            return data.tags;
+        } else {
+            timerStatusElement.textContent = 'Error saving tag';
+            console.error('Error:', data.message);
+            throw new Error(data.message);
+        }
+    })
+    .catch(error => {
+        timerStatusElement.textContent = 'Error saving tag';
+        console.error('Error:', error);
+        throw error;
+    });
+}
+
+// Load all tags
+export function loadTags() {
+    return fetch('/api/tags')
+        .then(response => response.json())
+        .then(data => {
+            return data.tags || [];
+        })
+        .catch(error => {
+            console.error('Error loading tags:', error);
+            timerStatusElement.textContent = 'Error loading tags';
+            return [];
+        });
+}
+
+// Delete a tag
+export function deleteTag(tag) {
+    return fetch(`/api/tags/${encodeURIComponent(tag)}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            timerStatusElement.textContent = 'Tag deleted successfully';
+            return data.tags;
+        } else {
+            timerStatusElement.textContent = 'Error deleting tag';
+            console.error('Error:', data.message);
+            return [];
+        }
+    })
+    .catch(error => {
+        timerStatusElement.textContent = 'Error deleting tag';
+        console.error('Error:', error);
+        return [];
+    });
+}
+
 // Export module
 export default {
     initSerializationModule,
@@ -226,5 +290,8 @@ export default {
     loadSchedules,
     deleteSchedule,
     submitScheduleFeedback,
+    saveTag,
+    loadTags,
+    deleteTag,
     setStatus
 };

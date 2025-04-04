@@ -1,3 +1,4 @@
+const { debug } = require('console');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -6,6 +7,7 @@ const PORT = 3000;
 const dataDir = path.join(__dirname, 'data');
 const instancesDir = path.join(dataDir, 'instances');
 const schedulesDir = path.join(dataDir, 'schedules');
+const tagsDir = path.join(dataDir, 'tags');
 // Middleware to parse JSON bodies
 app.use(express.json());
 
@@ -21,6 +23,9 @@ if (!fs.existsSync(instancesDir)) {
 }
 if (!fs.existsSync(schedulesDir)) {
     fs.mkdirSync(schedulesDir, { recursive: true });
+}
+if (!fs.existsSync(tagsDir)) {
+    fs.mkdirSync(tagsDir, { recursive: true });
 }
 
 // Helper function to get the week number
@@ -358,6 +363,112 @@ app.delete('/api/schedules/:id', (req, res) => {
     } catch (error) {
         console.error('Error deleting work schedule:', error);
         res.status(500).json({ success: false, message: 'Failed to delete work schedule' });
+    }
+});
+
+// API endpoint to get all tags
+app.get('/api/tags', (req, res) => {
+    try {
+        if (!fs.existsSync(tagsDir)) {
+            fs.mkdirSync(tagsDir, { recursive: true });
+            return res.status(200).json({ tags: ["balls"] });
+        }       
+        const tagsFilePath = path.join(tagsDir, 'tags.json');
+        
+        if (!fs.existsSync(tagsFilePath)) {
+            // If tags file doesn't exist, return empty array
+            return res.status(200).json({ tags: ["Boxes"] });
+        }
+        
+        // Read and parse tags file
+        const fileContent = fs.readFileSync(tagsFilePath, 'utf8');
+        const tagsData = JSON.parse(fileContent);
+        
+        res.status(200).json({ tags: tagsData.tags || [] });
+    } catch (error) {
+        console.error('Error getting tags:', error);
+        res.status(500).json({ success: false, message: 'Failed to get tags' });
+    }
+});
+
+// API endpoint to save a new tag
+app.post('/api/tags', (req, res) => {
+    try {
+        const { tag } = req.body;
+        
+        if (!tag) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing required field: tag is required' 
+            });
+        }
+        
+        // Ensure the tags directory exists
+        if (!fs.existsSync(tagsDir)) {
+            fs.mkdirSync(tagsDir, { recursive: true });
+        }
+        
+        // Path to tags file
+        const tagsFilePath = path.join(tagsDir, 'tags.json');
+        
+        // Read existing tags or create new array
+        let tagsData = { tags: [] };
+        if (fs.existsSync(tagsFilePath)) {
+            const fileContent = fs.readFileSync(tagsFilePath, 'utf8');
+            tagsData = JSON.parse(fileContent);
+        }
+        
+        // Check if tag already exists
+        if (!tagsData.tags.includes(tag)) {
+            // Add new tag
+            tagsData.tags.push(tag);
+            
+            // Write back to file
+            fs.writeFileSync(tagsFilePath, JSON.stringify(tagsData, null, 2));
+        }
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Tag saved successfully',
+            tags: tagsData.tags
+        });
+    } catch (error) {
+        console.error('Error saving tag:', error);
+        res.status(500).json({ success: false, message: 'Failed to save tag' });
+    }
+});
+
+// API endpoint to delete a tag
+app.delete('/api/tags/:tag', (req, res) => {
+    try {
+        const tagToDelete = decodeURIComponent(req.params.tag);
+        
+        // Path to tags file
+        const tagsFilePath = path.join(tagsDir, 'tags.json');
+        
+        // Check if tags file exists
+        if (!fs.existsSync(tagsFilePath)) {
+            return res.status(404).json({ success: false, message: 'No tags found' });
+        }
+        
+        // Read and parse tags file
+        const fileContent = fs.readFileSync(tagsFilePath, 'utf8');
+        const tagsData = JSON.parse(fileContent);
+        
+        // Filter out the tag to delete
+        tagsData.tags = tagsData.tags.filter(tag => tag !== tagToDelete);
+        
+        // Write back to file
+        fs.writeFileSync(tagsFilePath, JSON.stringify(tagsData, null, 2));
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'Tag deleted successfully',
+            tags: tagsData.tags
+        });
+    } catch (error) {
+        console.error('Error deleting tag:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete tag' });
     }
 });
 
