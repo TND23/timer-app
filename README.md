@@ -8,16 +8,13 @@ Quick and dirty pomodoro application.
 - Save work/break timers and load them in
 - Record how well the work duration worked for you and how refreshed you feel after the break
 - Create templates for timers and schedules
+- Allows users to tag / categorize timers  
   
-## Todos
-
-- Allow users to tag / categorize timers  
-
 ## Maybe Todos 
 
+- Add confetti when schedule complete
 - Display time worked with various graphs
 - Recommend timers based on historical data
-- Allow users to add notes to timers
 
 ## Data Storage
 
