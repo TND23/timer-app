@@ -356,6 +356,36 @@ button:hover {
 .save-instance-form {
     display: flex;
     gap: 10px;
+    margin-top: 15px;
+}
+
+/* Timer Editor Styles */
+.timer-editor {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.timer-editor h3 {
+    margin-bottom: 15px;
+    color: #444;
+    font-size: 18px;
+}
+
+.timer-editor h4 {
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 16px;
+}
+
+.secondary-button {
+    background-color: #6c757d;
+}
+
+.secondary-button:hover {
+    background-color: #5a6268;
 }
 
 #instance-name {

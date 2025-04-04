@@ -266,6 +266,18 @@ function timerComplete() {
         
         // Show work completion section
         workTimerCompleteElement.classList.remove('hidden');
+        
+        // Ensure feedback toggle is unchecked by default
+        workFeedbackToggle.checked = false;
+        includeFeedback.work = false;
+        
+        // Ensure feedback form is collapsed
+        workFeedbackForm.classList.add('collapsed');
+        
+        // Ensure tag container is hidden
+        if (workChooseTagButton) {
+            workChooseTagButton.parentElement.classList.add('hidden');
+        }
           
         // Play alert sound
         alarmModule.play("slot");
@@ -278,6 +290,18 @@ function timerComplete() {
         
         // Show break completion section
         breakTimerCompleteElement.classList.remove('hidden');
+        
+        // Ensure feedback toggle is unchecked by default
+        breakFeedbackToggle.checked = false;
+        includeFeedback.break = false;
+        
+        // Ensure feedback form is collapsed
+        breakFeedbackForm.classList.add('collapsed');
+        
+        // Ensure tag container is hidden
+        if (breakChooseTagButton) {
+            breakChooseTagButton.parentElement.classList.add('hidden');
+        }
         
         // Play alert sound
         alarmModule.play("rooster");
