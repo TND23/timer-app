@@ -357,7 +357,7 @@ export function runSchedule(schedule) {
     // Set current schedule
     currentSchedule = schedule;
     currentScheduleInstances = schedule.instances;
-    currentInstanceIndex = 0;
+    currentInstanceIndex = -1; // Start at -1 because startNextTimer will increment it to 0
     isRunningSchedule = true;
     
     // Set running schedule name
@@ -387,6 +387,9 @@ export function runSchedule(schedule) {
 
 // Start the next timer in the schedule
 export function startNextTimer() {
+    // Increment the current instance index
+    currentInstanceIndex++;
+    
     if (currentInstanceIndex >= currentScheduleInstances.length) {
         // All timers completed
         isRunningSchedule = false;

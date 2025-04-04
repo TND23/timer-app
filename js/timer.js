@@ -227,9 +227,11 @@ function timerComplete() {
         // Show work completion section
         workTimerCompleteElement.classList.remove('hidden');
           
-        // Play alert sound and show browser notification
-        //alert('Work timer complete!');
+        // Play alert sound
         alarmModule.play("slot");
+        
+        // If we're running a schedule, show the work feedback form
+        // The user will need to click the "Done" button to proceed
     } else {
         // Break timer complete
         timerStatusElement.textContent = 'Break timer complete!';
@@ -237,21 +239,16 @@ function timerComplete() {
         // Show break completion section
         breakTimerCompleteElement.classList.remove('hidden');
         
-        // Notify schedule module if needed
-        if (window.scheduleModule && window.scheduleModule.isRunningSchedule()) {
-            if (window.scheduleModule.isLastTimer()) {
-                // Last timer in schedule completed, show schedule feedback
-                window.scheduleModule.showScheduleFeedback();
-            } else {
-                // Show next timer button
-                nextTimerButton.classList.remove('hidden');
-            }
-        }
-        
-        // Play alert sound and show browser notification
-
+        // Play alert sound
         alarmModule.play("rooster");
-
+        
+        // If we're running a schedule, show the break feedback form and next timer button
+        if (window.scheduleModule && window.scheduleModule.isRunningSchedule()) {
+            // Show next timer button
+            nextTimerButton.classList.remove('hidden');
+            
+            // User will need to click "Done" or "Next Timer" to proceed
+        }
     }
 }
 
